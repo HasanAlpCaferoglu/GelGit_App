@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet"  href="{{ url_for('static', filename='css/generalStyle.css') }}">
+    <link rel="stylesheet"  href="{{ url_for('static', filename='css/aTravelDetails.css') }}">
+    <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet'>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script> 
+    <title>ŞuBilet</title>
+</head>
+<body>
+
+    {% if session['loggedin']  and session['userType'] == 'company' %}
+        <nav class="navbar navbar-expand-sm navbar-dark customNavbar">
+            <div class="container-fluid">
+                <ul class="navbar-nav">
+                <a class="navbar-brand" href="{{ url_for('main') }}"><strong>şu</strong>bilet.com</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main') }}">Search Travels</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('companysAllTravels', upcomingOrPast = 'upcoming') }}">Company's All Travels</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('addCompanyTravel', travelVehicleType = 'plane') }}">Register A Travel</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('companyProfile', companyId = session['userid']) }}">Company Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
+                </li>
+                </ul>
+            </div>
+        </nav>
+    {% elif session['loggedin'] and session['userType'] == 'admin' %}
+        <nav class="navbar navbar-expand-sm navbar-dark customNavbar">
+            <div class="container-fluid">
+                <ul class="navbar-nav">
+                    <a class="navbar-brand" href="{{ url_for('main') }}"><strong>şu</strong>bilet.com</a>
+                    <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main') }}">Search Travels</a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('companies')}}">Companies</a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('couponManagement') }}">Coupons</a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('vehicleManagement') }}">Vehicles</a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('terminalManagement') }}">Terminals</a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('reportManagement') }}">Application Report</a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    {% endif %}
+    
+    {% if theTravel %}
+        <div class="container pt-5 ">
+            <h4>
+                The Travel
+            </h4>
+            <hr>
+            <div class="card bg-dark text-white">
+                <div class="card-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            
+                            <div class="col">
+                                <div class="row">
+                                    <h6 class=" blockTitle">Departure Terminal</h6>
+                                    <p class="">{{ theTravel['departure_terminal_name'] }}</p>
+                                </div>
+                                <div class="row">
+                                    <h6 class="blockTitle">Departure Time</h6>
+                                    <p class="">{{ theTravel['depart_time'] }}</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="row">
+                                    <h6 class="blockTitle">Arrival Terminal</h6>
+                                    <p class="">{{ theTravel['arrival_terminal_name'] }}</p>
+                                </div>
+                                <div class="row">
+                                    <h6 class="blockTitle">Arrival Time</h6>
+                                    <p class="">{{ theTravel['arrival_time'] }}</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="row">
+                                    <h6 class="blockTitle">Vehicle Type</h6>
+                                    <p class="">{{ theTravel['vehicle_type'].capitalize() }}</p>
+                                </div>
+                                <div class="row">
+                                    <h6 class="blockTitle">Vehicle Model</h6>
+                                    <p class="">{{ theTravel['vehicle_model'] }}</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="row">
+                                    <h6 class="blockTitle">Price</h6>
+                                    <p class="">{{ theTravel['price'] }}</p>
+                                </div>
+                                <div class="row">
+                                    <h6 class="blockTitle">Business Price</h6>
+                                    {% if theTravel['business_price'] %}
+                                        <p class="">{{ theTravel['business_price'] }} ₺</p>
+                                    {% else %}
+                                        <p>-</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class=flashes>
+      {% for message in messages %}
+        {% if message != 'Session was not valid, please log in!' %}
+          <div class="container mt-5">
+            <h4 class="text-danger">{{ message }}</h4>
+          </div>
+        {% endif %}
+      {% endfor %}
+      </div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="container pt-4 ">
+        <h4> All Purchases For This Travel</h4>
+        <hr>
+    </div>
+    {% if aTravelPurchaseDetails%}
+    <div class="container ">
+        {% for singlePurchaseDetail in aTravelPurchaseDetails %}
+            <div class="card card-person bg-secondary text-white">
+                <div class="card-body">
+                    <div class="container-fluid">
+                        <div class="row align-items-start">
+                            
+                            <div class="col">
+                                <div class="row">
+                                    <h6 class=" blockTitle">PNR</h6>
+                                    <p class="">{{ singlePurchaseDetail['PNR'] }}</p>
+                                </div>
+                                <div class="row">
+                                    <h6 class="blockTitle">TCK</h6>
+                                    <p class="">{{ singlePurchaseDetail['TCK'] }}</p>
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="row">
+                                    <h6 class="blockTitle">Name</h6>
+                                    <p class="">{{ singlePurchaseDetail['name'] }}</p>
+                                </div>
+                                <div class="row">
+                                    <h6 class="blockTitle">Surname</h6>
+                                    <p class="">{{ singlePurchaseDetail['surname'] }}</p>
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="row">
+                                    <h6 class="blockTitle">Seat Number</h6>
+                                    <p class="">{{ singlePurchaseDetail['seat_number'] }}</p>
+                                </div>
+                                <div class="row">
+                                    <h6 class="blockTitle">Seat Type</h6>
+                                    <p class="">{{ singlePurchaseDetail['seat_type'] }}</p>
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="row">
+                                    <h6 class="blockTitle">Purchased Time</h6>
+                                    <p class="">{{ singlePurchaseDetail['purchased_time'] }}</p>
+                                </div>
+                                <div class="row">
+                                    <h6 class="blockTitle">Purchase Amount</h6>
+                                    <p class="">{{ singlePurchaseDetail['amount'] }}</p>
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="row">
+                                    <h6 class="blockTitle">Coupon Name</h6>
+                                    {% if singlePurchaseDetail['coupon_name'] %}
+                                        <p class="">{{ singlePurchaseDetail['coupon_name'] }}</p>
+                                    {% else %}
+                                        <p class="">-</p>
+                                    {% endif %}
+                                </div>
+                                <div class="row">
+                                    <h6 class="blockTitle">Coupon Sale Rate</h6>
+                                    {% if singlePurchaseDetail['coupon_name'] %}
+                                        <p class="">{{ singlePurchaseDetail['sale_rate'] }}</p>
+                                    {% else %}
+                                        <p class="">-</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="row align-items-start">
+                                    <h6 class="blockTitle">Payment method</h6>
+                                    <p class="">{{ singlePurchaseDetail['payment_method'] }}</p>
+                                </div>
+                            </div>
+                            <!-- If the travel is past travel then company cannot delete or do anything about the purchase -->
+                            {% if theTravel['depart_time'] > current_time %}
+                            <div class="col align-items-center">
+                                {% if session['userType'] == 'admin' %}
+                                    <form class="row mb-2 text-decoration-none" action="{{ url_for('deleteWORefundAPurchase', PNRToBeDeleted = singlePurchaseDetail['PNR'] ) }}" method="get">
+                                        <input type="hidden" name="company_id" id="company_id" value="{{ companyId }}">
+                                        <button class="btn btn-danger">Delete w/o Refund</button>
+                                    </form>
+                                {% endif %}
+                                <form class="row mb-2 text-decoration-none" action="{{ url_for('deleteAndRefundAPurchase', PNRToBeDeleted = singlePurchaseDetail['PNR'] ) }}" method="get">
+                                    <input type="hidden" name="company_id" id="company_id" value="{{ companyId }}">
+                                    <button class="btn btn-danger">Delete & Refund</button>
+                                </form>
+                                <form class="row mb-2 text-decoration-none" action="{{ url_for('deleteAndGiveFreeTravel', PNRToBeDeleted = singlePurchaseDetail['PNR'] ) }}" method="get">
+                                    <input type="hidden" name="company_id" id="company_id" value="{{ companyId }}">
+                                    <button class="btn btn-danger">Delete & Give Free Travel </button>
+                                </form>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="container ">
+        <h5> There is no purchase. </h5>
+    </div>
+    {% endif %}
+
+    <!-- The reservations for upcoming travels will be shown -->
+    {% if theTravel['depart_time'] > current_time %}
+    <div class="container pt-4 ">
+        <h4> All Reservations For This Travel</h4>
+        <hr>
+    </div>
+    {% if aTravelReservationDetails %}
+    <div class="container ">
+        {% for singleReservationDetail in aTravelReservationDetails %}
+            <div class="card card-person bg-secondary text-white">
+                <div class="card-body">
+                    <div class="container-fluid">
+                        <div class="row align-items-start">
+                            
+                            <div class="col">
+                                <div class="row">
+                                    <h6 class=" blockTitle">PNR</h6>
+                                    <p class="">{{ singleReservationDetail['PNR'] }}</p>
+                                </div>
+                                <div class="row">
+                                    <h6 class="blockTitle">TCK</h6>
+                                    <p class="">{{ singleReservationDetail['TCK'] }}</p>
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="row">
+                                    <h6 class="blockTitle">Name</h6>
+                                    <p class="">{{ singleReservationDetail['name'] }}</p>
+                                </div>
+                                <div class="row">
+                                    <h6 class="blockTitle">Surname</h6>
+                                    <p class="">{{ singleReservationDetail['surname'] }}</p>
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="row">
+                                    <h6 class="blockTitle">Seat Number</h6>
+                                    <p class="">{{ singleReservationDetail['seat_number'] }}</p>
+                                </div>
+                                <div class="row">
+                                    <h6 class="blockTitle">Seat Type</h6>
+                                    <p class="">{{ singleReservationDetail['seat_type'] }}</p>
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="row">
+                                    <h6 class="blockTitle">Reservation Time</h6>
+                                    <p class="">{{ singleReservationDetail['reserved_time'] }}</p>
+                                </div>
+                                <div class="row">
+                                    <h6 class="blockTitle">Pruchase Deadline</h6>
+                                    <p class="">{{ singleReservationDetail['purchased_deadline'] }}</p>
+                                </div>
+                            </div>
+
+                            <div class="col align-items-center">
+                                <form class="row mb-2 text-decoration-none" action="{{ url_for('deleteAReservation', PNRToBeDeleted = singleReservationDetail['PNR'] ) }}" method="get">
+                                    <input type="hidden" name="company_id" id="company_id" value="{{ companyId }}">
+                                    <button class="btn btn-danger">Delete Reservation</button>
+                                </form>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="container">
+        <h5> There is no reservation. </h5>
+    </div>
+    {% endif %}
+    {% endif %}
+
+
+</body>

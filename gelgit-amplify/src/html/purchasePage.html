@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/generalStyle.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/purchasePage.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script> 
+    <title>ŞuBilet</title>
+</head>
+<body>
+    {% if is_logged_in and session['userType'] == 'traveler' %} 
+        <nav class="navbar navbar-expand-sm navbar-dark customNavbar">
+            <div class="container-fluid">
+                <ul class="navbar-nav">
+                    <a class="navbar-brand" href="{{ url_for('main') }}"><strong>şu</strong>bilet.com</a>
+                    <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('myTravels') }}">My Travels</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('journeys') }}">My Journeys</a>
+                      </li>            
+                    <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('balance')}}">Balance</a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('coupons') }}">Coupons</a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('userProfile') }}">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    {% elif session['userType'] == 'company' %}
+        <nav class="navbar navbar-expand-sm navbar-dark customNavbar">
+            <div class="container-fluid">
+                <ul class="navbar-nav">
+                <a class="navbar-brand" href="{{ url_for('main') }}"><strong>şu</strong>bilet.com</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main') }}">Search Travels</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('companysAllTravels', upcomingOrPast = 'upcoming') }}">Company's All Travels</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('addCompanyTravel', travelVehicleType = 'plane') }}">Register A Travel</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('companyProfile', companyId = session['userid']) }}">Company Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
+                </li>
+                </ul>
+            </div>
+        </nav>
+    {% else %}
+        <nav class="navbar navbar-expand-sm navbar-dark customNavbar">
+            <div class="container-fluid">
+            <ul class="navbar-nav">
+                <a class="navbar-brand" href="{{ url_for('main') }}"><strong>şu</strong>bilet.com</a>
+            </ul>
+
+            <ul class="navbar-nav ml-auto d-flex align-items-center">
+                <li class="nav-item border-right pr-3">
+                <a class="nav-link" href="{{ url_for('login') }}">Log in</a>
+                </li>
+                <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('travelerRegister') }}">Register</a>
+                </li>
+            </ul>
+            </div>
+        </nav>
+    {% endif %}
+
+    <div class="container-fluid text-white">
+        <div class="row"> <!--Main row-->
+
+            <div class="col"> <!-- Main row: Left side-->
+
+                <div class="row"> <!--Main row: Left side: 1st row-->
+                    <div class="col">
+                        <div class="card m-4 infoCard">
+                            <div class="card-header">
+                                <!-- Replace with actual company name from database--> 
+                                <h5 class="card-title"> {{ travel_details['company_name'] }} </h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Replace with actual travel information from database -->
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="text-lightRed">Departure:</div>
+                                        <div> {{ travel_details['departure_terminal'] }} </div>        
+                                    </div>
+                                    <div class="col">
+                                        <div class="text-lightRed">Arrival:</div>
+                                        <div> {{ travel_details['arrival_terminal'] }} </div>        
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="text-lightRed">Departure Time:</div>
+                                        <div> {{ travel_details['depart_time'] }} </div>        
+                                    </div>
+
+                                    {% if seat_chosen %}
+                                    <div class="col">
+                                        <div class="text-lightRed">Seat number:</div>
+                                        <div> {{ seat_number }} </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if reserved_booking %}
+                                    <div class="col">
+                                        <div class="text-lightRed">PNR:</div>
+                                        <div> {{ pnr }} </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                            {% if journey_count != 0 %}
+                            <div class="row">
+                                <div class="col">
+                                    <div class="text-lightRed">Journey:</div>
+                                    <div> {{ journey_name }} </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row"> <!--Main row: Left side: 2nd row-->
+                    <div class="col">
+                        <div class="card m-4 infoCard">
+                            <div class="card-header">
+                                <h5 class="card-title"> Available Coupons </h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Replace with actual coupons from database -->
+                                {% if is_logged_in and session['userType'] == 'traveler' %}
+                                    {% for coupon in coupons %}
+                                        <form method="post" action="{{ url_for('buy_travel', travel_id=travel_id) }}" class="couponForm">
+                                            <div class="card couponCard p-2 mb-2">
+                                                {% if seat_chosen and reserved_booking %}
+                                                    <input type="hidden" name="reserve_PNR" id="reserve_PNR" value="{{ pnr }}">
+                                                    <input type="hidden" name="seat_number" id="seat_number" value="{{ seat_number }}">
+                                                {% endif %}
+                                                <button class="btn btn-outline-success btn-lg {% if coupon.coupon_id == selected_coupon_id %}clickedCoupon{% endif %}" type="submit">
+                                                    {{ coupon.coupon_name }} ({{ coupon.sale_rate * 100 }}%)
+                                                </button>
+                                                <input type="hidden" name="coupon_id" value="{{ coupon.coupon_id }}">
+                                            </div>
+                                        </form>
+                                    {% endfor %}    
+                                    {% if selected_coupon_id %}
+                                        <form method="post" action="{{ url_for('buy_travel', travel_id=travel_id) }}">
+                                            {% if seat_chosen and reserved_booking %}
+                                                <input type="hidden" name="reserve_PNR" id="reserve_PNR" value="{{ pnr }}">
+                                                <input type="hidden" name="seat_number" id="seat_number" value="{{ seat_number }}">
+                                            {% endif %}
+                                            <button class="btn btn-outline-danger" type="submit">Clear Coupon</button>
+                                        </form>
+                                    {% endif %}
+                                {% else %}  
+                                    <div class="card couponCard p-2 mb-2">
+                                        <!-- need frontend support -->
+                                        Log In to See Coupons
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col"> <!--Main row: Right side-->
+                <div class="card m-4 infoCard">
+                    <div class="card-header">
+                        <h5 class="card-title">Complete Purchase</h5>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="row">
+                            <div class="col">
+                                <h2> Current Balance: </h2>
+                            </div>
+                            <div class="col">
+                                <div class="card bg-secondary text-white text-center">
+                                    <!-- Replace with actual user balance from database -->
+                                    {% if is_logged_in and session['userType'] == 'traveler' %}
+                                        <div style="font-size: 30px;"> {{ balance['balance'] }} ₺</div>
+                                    {% else %}
+                                        <!-- need frontend support (how should the page look if not logged in)-->
+                                        <div style="font-size: 30px;"> Log In to Purchase </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div> 
+                        <div class="row">
+                            <div class="col">
+                                <h2> Ticket Price: </h2>
+                            </div>
+                            <div class="col">
+                                <div class="card bg-secondary text-white text-center">
+                                    {% if 'discounted_price' in travel_details %}
+                                        <div style="font-size: 30px;">{{ travel_details['discounted_price'] }} ₺</div>
+                                    {% else %}
+                                        <div style="font-size: 30px;">{{ travel_details['price'] }} ₺</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div> 
+                        <hr/>
+                        <div class="row">
+                            <div class="d-grid gap-2 col-6 mx-auto">
+                                {% if reserved_booking %}
+                                    <form method='POST' action="{{ url_for('buy_travel', travel_id=travel_id) }}">
+                                        <button class="btn btn-outline-success btn-lg" type="submit" name="purchase">Purchase Ticket</button>
+                                        {% if selected_coupon_id %}
+                                            <input type="hidden" name="coupon_id" value="{{ selected_coupon_id }}">
+                                        {% endif %}
+                                        {% if seat_chosen %}
+                                            <input type="hidden" id="seat_number" name="seat_number" value="{{ seat_number }}">
+                                        {% endif %}
+                                        <input type="hidden" id="reserve_PNR" name="reserve_PNR" value="{{ pnr }}">
+                                    </form>
+                                {% else %}
+                                    <form method='POST' action="{{ url_for('buy_travel', travel_id=travel_id) }}">
+                                        <button class="btn btn-outline-success btn-lg" type="submit" name="reserve">Reserve Ticket</button>
+                                        <button class="btn btn-outline-success btn-lg" type="submit" name="purchase">Purchase Ticket</button>
+                                        {% if selected_coupon_id %}
+                                            <input type="hidden" name="coupon_id" value="{{ selected_coupon_id }}">
+                                        {% endif %}
+                                        {% if seat_chosen %}
+                                            <input type="hidden" id="seat_number" name="seat_number" value="{{ seat_number }}">
+                                        {% endif %}
+                                    </form>
+                                    <hr/>
+                                    {% if journey_count == 0 %}
+                                        <form method="POST" action="{{ url_for('buy_travel', travel_id=travel_id) }}">
+                                            <div class="d-grid gap-2 col-12 mx-auto">
+                                                <label for="selectedJourney">Add this travel to one of your journeys</label>
+                                                <select class="form-select" id="selectedJourney" name="selectedJourney">
+                                                    {% for journey in journeys %}
+                                                    <option>{{ journey.journey_name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <select id="selectedJourney" name="selectedJourney" style="display: none;"></select> 
+                                                <button class="btn btn-outline-info btn-lg" type="submit" name="addTravelToJourney">Add to Journey</button>
+                                            </div>
+                                        </form>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <script>
+                    var messages = {{ messages | safe }};
+                    for (var i=0; i<messages.length; i++) {
+                        alert(messages[i]);
+                    }
+                    </script>
+                {% endif %}
+            {% endwith %}
+
+        </div>
+    </div>
+</body>
+</html>

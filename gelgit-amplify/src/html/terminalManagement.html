@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/generalStyle.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/generalListPage.css') }}">
+    <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet'>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script> 
+    <title>ŞuBilet</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-sm navbar-dark customNavbar">
+        <div class="container-fluid">
+        <ul class="navbar-nav">
+            <a class="navbar-brand" href="{{ url_for('main') }}"><strong>şu</strong>bilet.com</a>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('main') }}">Search Travels</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('companies') }}">Companies</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('couponManagement') }}">Coupons</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('vehicleManagement') }}">Vehicles</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('terminalManagement') }}">Terminals</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('reportManagement') }}">Application Report</a>
+              </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
+            </li>
+        </ul>
+        </div>
+    </nav>
+
+    <div class="container pt-4">
+        <div class="row">
+            <div class="col-9 d-flex flex-column">
+                <div class="mt-auto">
+                    <h4>Terminals</h4>
+                </div>
+            </div>
+            <div class="col-3 d-flex justify-content-center">
+                <a href="{{ url_for('createTerminal') }}">
+                    <button class="btn btn-lg btn-danger px-5">Create New Terminal</button>
+                </a>
+            </div>
+        </div>
+        <hr>
+    </div>
+    
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class=flashes>
+      {% for message in messages %}
+        {% if message != 'Session was not valid, please log in!' %}
+          <div class="container mt-2 mb-2">
+            <h4 class="text-danger">{{ message }}</h4>
+          </div>
+        {% endif %}
+      {% endfor %}
+      </div>
+    {% endif %}
+    {% endwith %}
+
+
+    {% if allTerminals%}
+    <div class="container mt-2">
+        {% for singleTerminal in allTerminals %}
+            <div class="card card-person bg-secondary text-white">
+                <div class="card-body">
+                    <div class="container-fluid">
+                        <div class="row align-items-start">
+                            
+                            <div class="col">
+                                <div class="row">
+                                    <h6 class=" blockTitle">Terminal Name</h6>
+                                    <p class="">{{ singleTerminal['name'] }}</p>
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="row">
+                                    <h6 class="blockTitle">City</h6>
+                                    <p class="">{{ singleTerminal['city'].capitalize() }}</p>
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="row">
+                                    <h6 class="blockTitle">Terminal Type</h6>
+                                    <p class="">{{ singleTerminal['type'].capitalize() }}</p>
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="row">
+                                    <h6 class="blockTitle">Terminal Active Status</h6>
+                                    <p class="">{{ singleTerminal['active_status'].capitalize() }}</p>
+                                </div>
+                            </div>
+
+
+                            <div class="col">
+                                <a class="row text-decoration-none mb-2" href="{{ url_for('deleteTerminal', terminalId = singleTerminal['terminal_id'], sure = 'false' ) }}">
+                                    <button class="btn btn-danger">Delete Terminal</button>
+                                </a> 
+                                
+                                <!-- {% if singleTerminal['active_status'] == 'active' %}                          
+                                <a class="row text-decoration-none" href="{{ url_for('deleteAVehicleType', vehicleTypeId = singleTerminal['terminal_id'] ) }}">
+                                    <button class="btn btn-danger">Deactivate Terminal</button>
+                                </a> 
+                                {% else %}
+                                <a class="row text-decoration-none" href="{{ url_for('deleteAVehicleType', vehicleTypeId = singleTerminal['terminal_id'] ) }}">
+                                    <button class="btn btn-danger">Activate Terminal</button>
+                                </a>   
+                                {% endif %} -->
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="container ">
+        <h5> There is no coupon. </h5>
+    </div>
+    {% endif %}
+
+    <script>
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    </script>
+
+</body>

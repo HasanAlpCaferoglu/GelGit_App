@@ -1,0 +1,66 @@
+.card {
+    margin-bottom: 40px; /* Add spacing between cards */
+}
+
+.upperBar{
+    background-color: rgb(75, 75, 75);
+    color: white;
+    font-size: 20px;
+}
+
+.container-fluid .row{
+    display: flex;
+    align-items: center;
+}
+
+.companyTitle{
+    color: #fcd4d4;
+    font-weight: bold;
+    font-family: 'Raleway', sans-serif;
+    
+}
+
+.arrow-container {
+    display: flex;
+    align-items: center;
+}
+  
+.arrow {
+    font-weight: bold;
+    font-size: 40px;
+    margin: 0px 10px;
+    color: #ed7171;
+}
+  
+.arrow-text {
+    font-size: 20px;
+}
+
+.col-right {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.container-sm {
+    width: 500px;
+}
+
+.box {
+    border: 1px solid black;
+    padding: 0.5vw;
+    text-align: center;
+    background-color: #359CDA;
+    cursor: pointer;
+    margin-right: -0.5vw;
+    margin-left: -0.5vw;
+}
+
+.box.selected {
+    background-color: red;
+}
+
+.empty-box {
+    width: 3.5vw;
+    height: 3vw;
+    background-color: transparent;
+}

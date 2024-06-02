@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/generalStyle.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/myTravles.css') }}">
+    <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet'>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script> 
+    <title>ŞuBilet</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-sm navbar-dark customNavbar">
+        <div class="container-fluid">
+            <ul class="navbar-nav">
+              <a class="navbar-brand" href="{{ url_for('main') }}"><strong>şu</strong>bilet.com</a>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('myTravels') }}">My Travels</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('journeys') }}">My Journeys</a>
+              </li>    
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('balance')}}">Balance</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('coupons') }}">Coupons</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('userProfile') }}">Profile</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
+              </li>
+            </ul>
+          </div>
+    </nav>
+
+    <div class="container-fluid pt-4 pb-4 upperBar">
+        <form action="{{ url_for('myTravels') }}" method="GET">
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label for="travelDate">Travel Date</label>
+                <input type="date" class="form-control" id="travelDate" name="travelDate" value="{{ travelDate }}">
+              </div>
+            </div>
+            <!-- Departure Terminal filter -->
+            <div class="col-md-3">
+                <label for="departureTerminal">Departure Terminal</label>
+                <select class="form-control" id="departureTerminal" name="departureTerminal">
+                <option value="">All</option>
+                {% for terminal in departure_terminals %}
+                    <option value="{{ terminal['terminal_id'] }}">{{ terminal['city'] }}</option>
+                {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Arrival Terminal filter -->
+            <div class="col-md-3">
+                <label for="arrivalTerminal">Arrival Terminal</label>
+                <select class="form-control" id="arrivalTerminal" name="arrivalTerminal">
+                <option value="">All</option>
+                {% for terminal in arrival_terminals %}
+                    <option value="{{ terminal['terminal_id'] }}">{{ terminal['city'] }}</option>
+                {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Travel Type filter -->
+            <div class="col-md-3">
+                <label for="travelType">Travel Type</label>
+                <select class="form-control" id="travelType" name="travelType">
+                <option value="">All</option>
+                {% for travelType in vehicle_types %}
+                    <option value="{{ travelType['id'] }}">{{ travelType['type'] }}</option>
+                {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3">
+              <div class="form-group">
+                <input type="hidden" name="upcomingOrPast" value="{{ upcomingOrPast }}">
+                <button type="submit" class="btn btn-primary">Filter</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>      
+
+    <div class="container">
+        <div class="d-flex justify-content-around mt-4 mb-3">
+          <div class="flex-fill justify-content-center text-center">
+            <form action="{{ url_for('myTravels') }}" method="GET">
+              <input type="hidden" name="upcomingOrPast" value="upcoming">
+              <button type="submit" class="btn btn-lg w-50 {% if upcomingOrPast == 'upcoming' %}btn-secondary{% else %}btn-danger{% endif %}">
+                Upcoming Travels
+              </button>
+            </form>
+          </div>
+        
+          <div class="flex-fill justify-content-center text-center">
+            <form action="{{ url_for('myTravels') }}" method="GET">
+              <input type="hidden" name="upcomingOrPast" value="past">
+              <button type="submit" class="btn btn-lg w-50 {% if upcomingOrPast == 'past' %}btn-secondary{% else %}btn-danger{% endif %}">
+                Past Travels
+              </button>
+            </form>
+          </div>
+        </div>
+     </div>
+
+    <div class="container mt-2">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class=flashes>
+            {% for message in messages %}
+            {% if message != 'Session was not valid, please log in!' %}
+            <div class="container mt-4">
+                <h4 class="text-danger">{{ message }}</h4>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+    </div>
+      
+      
+
+    <div class="container pt-4">
+        {% if user_travels %}
+        {% for row in user_travels %}
+        <div class="card text-white mb-4">
+            <div class="card-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-3 ">
+                            <h3 class="companyTitle">{{ row['company_name'] }}</h3>
+                        </div>
+                        <div class="col ">
+                            <div class="row text-secondary">
+                                PNR Number:
+                            </div>
+                            <div class="row">
+                                {{ row['PNR'] }}
+                            </div>
+                        </div>
+                        {% if upcomingOrPast == 'upcoming' %}
+                        <div class="col-1 ">
+                            <div class="row text-secondary">
+                                Seat:
+                            </div>
+                            <div class="row">
+                                {{ row['seat_number'] }}
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="col-2 ">
+                            <div class="row text-secondary">
+                                Travel Date:
+                            </div>
+                            <div class="row">
+                                {{ row['depart_time'] }}
+                            </div>
+                        </div>
+                        <div class="col-2 ">
+                            <div class="row text-secondary">
+                                Departure:
+                            </div>
+                            <div class="row">
+                                {{ row['departure_terminal_name'] }}
+                            </div>
+                        </div>
+                        <div class="col-2 ">
+                            <div class="row text-secondary">
+                                Destination:
+                            </div>
+                            <div class="row">
+                                {{ row['arrival_terminal_name'] }}
+                            </div>
+                        </div>
+                        {% if upcomingOrPast == 'past' %}
+                        <div class="col-1">
+                            {% if commentAreaOnAPNR != row['PNR'] or commentAreaOnAPNR == None %}
+                            <form action="{{ url_for('myTravels') }}" method="GET">
+                                <input type="hidden" name="commentAreaOnAPNR" value="{{ row['PNR'] }}">
+                                <input type="hidden" name="upcomingOrPast" value="past">
+                                <button type="submit" class="btn {% if commentAreaOnAPNR == row['PNR']  %} disabled {% else %}btn-danger{% endif %}">
+                                  Comment
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                        {% elif upcomingOrPast == 'upcoming' and row['PNR'] in reserved_travels %}
+                        <div class="col-1">
+                            <form method="POST" action="{{ url_for('buy_travel', travel_id=row['travel_id']) }}">
+                                <input type="hidden" name="reserve_PNR" id="reserve_PNR" value="{{row['PNR']}}">
+                                <button class="btn btn-danger btn-lg" type="submit">Purchase</button>
+                                {{ row['PNR'] }}
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if commentAreaOnAPNR == row['PNR'] %}
+                    <hr>
+                    <div class="row mt-2">
+                        
+                        <div class="rating-stars d-flex mb-2">
+                            <form action="{{ url_for('myTravels') }}" method="GET">
+                                <input type="hidden" id="star2" name="rating" value="1" />
+                                <input type="hidden" name="commentAreaOnAPNR" value="{{ row['PNR'] }}">
+                                <input type="hidden" name="upcomingOrPast" value="past">
+                                <button type="submit" class="btn btn-link text-dark" for="star1" title="1 stars">
+                                    {% if currentRating and currentRating >= '1' %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
+                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                                    </svg>
+                                    {% else %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star" viewBox="0 0 16 16">
+                                        <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z"/>
+                                    </svg>
+                                    {% endif %}
+                                </button>
+                            </form>
+
+                            <form action="{{ url_for('myTravels') }}" method="GET">
+                                <input type="hidden" id="star2" name="rating" value="2" />
+                                <input type="hidden" name="commentAreaOnAPNR" value="{{ row['PNR'] }}">
+                                <input type="hidden" name="upcomingOrPast" value="past">
+                                <button type="submit" class="btn btn-link text-dark" for="star2" title="2 stars">
+                                    {% if currentRating and currentRating >= '2' %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
+                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                                    </svg>
+                                    {% else %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star" viewBox="0 0 16 16">
+                                        <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z"/>
+                                    </svg>
+                                    {% endif %}
+                                </button>
+                            </form>
+
+                            <form action="{{ url_for('myTravels') }}" method="GET">
+                                <input type="hidden" id="star3" name="rating" value="3" />
+                                <input type="hidden" name="upcomingOrPast" value="past">
+                                <input type="hidden" name="commentAreaOnAPNR" value="{{ row['PNR'] }}">
+                                <button type="submit" class="btn btn-link text-dark" for="star3" title="3 stars">
+                                    {% if currentRating and currentRating >= '3' %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
+                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                                    </svg>
+                                    {% else %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star" viewBox="0 0 16 16">
+                                        <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z"/>
+                                    </svg>
+                                    {% endif %}
+                                </button>
+                            </form>
+
+                            <form action="{{ url_for('myTravels') }}" method="GET">
+                                <input type="hidden" id="star4" name="rating" value="4" />
+                                <input type="hidden" name="upcomingOrPast" value="past">
+                                <input type="hidden" name="commentAreaOnAPNR" value="{{ row['PNR'] }}">
+                                <button type="submit" class="btn btn-link text-dark" for="star4" title="4 stars">
+                                    {% if currentRating and currentRating >= '4' %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
+                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                                    </svg>
+                                    {% else %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star" viewBox="0 0 16 16">
+                                        <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z"/>
+                                    </svg>
+                                    {% endif %}
+                                </button>
+                            </form>
+
+                            <form action="{{ url_for('myTravels') }}" method="GET">
+                                <input type="hidden" id="star5" name="rating" value="5" />
+                                <input type="hidden" name="upcomingOrPast" value="past" />
+                                <input type="hidden" name="commentAreaOnAPNR" value="{{ row['PNR'] }}" />
+                                <button type="submit" class="btn btn-link text-dark" for="star5" title="5 stars">
+                                    {% if currentRating and currentRating == '5' %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
+                                        <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                                    </svg>
+                                    {% else %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star" viewBox="0 0 16 16">
+                                        <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z"/>
+                                    </svg>
+                                    {% endif %}
+                                </button> 
+                            </form>
+                        </div>
+
+                        <form id="commentForm" action="{{ url_for('makeComment', travel_id = row['travel_id'] ) }}" method="POST">
+                            <textarea name="comment" id="comment" rows="5" class="w-100 rounded bg-light border" placeholder="Enter your comment here..."></textarea>
+                            <input type="hidden" id="rating" name="rating" value="{{ currentRating }}" />
+                            <div class="row mt-3">
+                                <div class="col-2">
+                                    <button type="submit" form="commentForm"  class="btn btn-danger ">
+                                        Make Comment
+                                    </button>
+                                </div>
+                                
+                                <div class="col-2">
+                                    <form id="cancelForm" action="{{ url_for('myTravels') }}" method="GET">
+                                        <input type="hidden" name="upcomingOrPast" value="past" />
+                                        <button type="submit" form="cancelForm" class="btn btn-secondary ml-8">
+                                          Cancel Comment
+                                        </button>
+                                    </form>  
+                                </div>
+                                <div class="col-8"></div>  <!-- This column is for allignment -->                       
+                            </div>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% elif upcomingOrPast == 'upcoming' %}
+        <div>
+            <h3>You don't have any upcoming travels.</h3>
+        </div>
+        {% else %}
+        <div>
+            <h3>You don't have any upcoming travels.</h3>
+        </div>
+        {% endif %}
+    </div>    
+    
+</body>
